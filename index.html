@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>My Family Tree</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>My Family Tree</h1>
+
+<div class="tree">
+  <ul id="familyTree"></ul>
+</div>
+
+<div class="controls">
+  <h3>Manage Family</h3>
+  <input type="text" id="name" placeholder="Nama">
+  <select id="relation">
+    <option value="parent">Add Parent</option>
+    <option value="sibling">Add Sibling</option>
+    <option value="child">Add Child</option>
+    <option value="partner">Add Partner</option>
+  </select>
+  <button onclick="addPerson()">Add</button>
+  <button onclick="deletePerson()">Delete Selected</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

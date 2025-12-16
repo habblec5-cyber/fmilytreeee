@@ -1,0 +1,115 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f7f8fa;
+  text-align: center;
+}
+
+h1 {
+  margin: 25px;
+}
+
+/* TREE */
+.tree ul {
+  padding-top: 20px;
+  position: relative;
+  display: table;
+  margin: auto;
+}
+
+.tree li {
+  list-style: none;
+  display: table-cell;
+  text-align: center;
+  position: relative;
+  padding: 20px 10px 0;
+}
+
+/* garis */
+.tree li::before,
+.tree li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 20px;
+  border-top: 2px solid #bbb;
+}
+
+.tree li::before { right: 50%; }
+.tree li::after { left: 50%; }
+
+.tree li:only-child::before,
+.tree li:only-child::after {
+  display: none;
+}
+
+.tree li:first-child::before { border: none; }
+.tree li:last-child::after { border: none; }
+
+.tree ul ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 20px;
+  border-left: 2px solid #bbb;
+}
+
+/* NODE */
+.node-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.person {
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: white;
+  border: 1.5px solid #ddd;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0,0,0,.08);
+  transition: .2s;
+}
+
+.person:hover {
+  transform: translateY(-2px);
+}
+
+/* ROLE COLORS */
+.parent { background: #ede9fe; border-color: #7c3aed; }
+.self { background: #ffffff; border-color: #9ca3af; }
+.child { background: #dcfce7; border-color: #16a34a; }
+.partner { background: #e0f2fe; border-color: #0284c7; }
+
+.selected {
+  background: #ffedd5 !important;
+  border-color: #f59e0b !important;
+}
+
+/* CONTROL */
+.controls {
+  background: white;
+  width: 340px;
+  margin: 40px auto;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.08);
+}
+
+.controls input,
+.controls select,
+.controls button {
+  width: 100%;
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.controls button {
+  background: #111827;
+  color: white;
+  border: none;
+}
