@@ -1,132 +1,106 @@
-let selectedId = null;
-
-let family = {
-  id: 1,
-  name: "Kamu",
-  parents: [],
-  partners: [],
-  children: []
-};
-
-function newPerson(name) {
-  return {
-    id: Date.now(),
-    name,
-    parents: [],
-    partners: [],
-    children: []
-  };
+/* =========================
+   NAVIGASI
+========================= */
+function showPage(id) {
+  document.querySelectorAll("section").forEach(s =>
+    s.classList.remove("active")
+  );
+  document.getElementById(id).classList.add("active");
 }
 
-/* FIND */
-function findPerson(root, id) {
-  if (root.id === id) return root;
-  for (let c of root.children) {
-    const found = findPerson(c, id);
-    if (found) return found;
-  }
-  return null;
+/* =========================
+   DATA
+========================= */
+let nodes = JSON.parse(localStorage.getItem("nodes")) || [];
+
+/* =========================
+   SIMPAN
+========================= */
+function save() {
+  localStorage.setItem("nodes", JSON.stringify(nodes));
 }
 
-/* RENDER */
-function renderTree() {
-  const tree = document.getElementById("familyTree");
-  tree.innerHTML = "";
-  tree.appendChild(renderNode(family));
+/* =========================
+   TAMBAH NODE
+========================= */
+document.getElementById("familyForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+  const role = document.getElementById("role").value.toLowerCase();
+  const parent = document.getElementById("parent").value || null;
+
+  if (!name) return;
+
+  let emoji = "👤";
+  let color = "black";
+
+  if (role.includes("ayah")) { emoji = "👨"; color = "red"; }
+  if (role.includes("ibu"))  { emoji = "👩"; color = "blue"; }
+  if (role.includes("anak")) { emoji = "👧"; color = "green"; }
+
+  nodes.push({ name, emoji, color, parent });
+  save();
+  renderAll();
+  e.target.reset();
+});
+
+/* =========================
+   DELETE NODE + ANAKNYA
+========================= */
+function deleteNode(name) {
+  nodes = nodes.filter(n => n.name !== name && n.parent !== name);
+  save();
+  renderAll();
 }
 
-function renderNode(person) {
-  const li = document.createElement("li");
-
-  const wrap = document.createElement("div");
-  wrap.className = "node-wrapper";
-
-  const box = document.createElement("div");
-  box.className = "person";
-  if (person.parents.length === 0) box.classList.add("parent");
-  if (person.children.length > 0) box.classList.add("self");
-  if (person.parents.length > 0 && person.children.length === 0) box.classList.add("child");
-  if (person.id === selectedId) box.classList.add("selected");
-
-  box.innerText = person.name;
-  box.onclick = () => {
-    selectedId = person.id;
-    renderTree();
-  };
-
-  wrap.appendChild(box);
-
-  /* PARTNER */
-  person.partners.forEach(p => {
-    const pBox = document.createElement("div");
-    pBox.className = "person partner";
-    pBox.innerText = p.name;
-    pBox.onclick = () => {
-      selectedId = p.id;
-      renderTree();
-    };
-    wrap.appendChild(pBox);
+/* =========================
+   RENDER LIST (ATAS)
+========================= */
+function renderList() {
+  let html = "<ul>";
+  nodes.forEach(n => {
+    html += `
+      <li style="color:${n.color}">
+        ${n.emoji} ${n.name}
+        <span onclick="deleteNode('${n.name}')" style="cursor:pointer;color:red"> ❌</span>
+      </li>`;
   });
-
-  li.appendChild(wrap);
-
-  if (person.children.length > 0) {
-    const ul = document.createElement("ul");
-    person.children.forEach(c => ul.appendChild(renderNode(c)));
-    li.appendChild(ul);
-  }
-
-  return li;
+  html += "</ul>";
+  document.getElementById("list").innerHTML = html;
 }
 
-/* ADD */
-function addPerson() {
-  const name = document.getElementById("name").value;
-  const type = document.getElementById("relation").value;
-  if (!name || !selectedId) return alert("Pilih orang & isi nama");
+/* =========================
+   RENDER TREE (POHON BENERAN)
+========================= */
+function renderTree(parent = null) {
+  const children = nodes.filter(n => n.parent === parent);
+  if (!children.length) return "";
 
-  const target = findPerson(family, selectedId);
-  const p = newPerson(name);
-
-  if (type === "parent") {
-    p.children.push(target);
-    target.parents.push(p);
-    family = p;
-  }
-
-  if (type === "child") {
-    target.children.push(p);
-    p.parents.push(target);
-  }
-
-  if (type === "sibling") {
-    if (!target.parents[0]) return alert("Sibling harus punya parent");
-    target.parents[0].children.push(p);
-    p.parents.push(target.parents[0]);
-  }
-
-  if (type === "partner") {
-    target.partners.push(p);
-    p.partners.push(target);
-  }
-
-  document.getElementById("name").value = "";
-  renderTree();
+  let html = "<ul>";
+  children.forEach(n => {
+    html += `
+      <li>
+        <span style="color:${n.color}">
+          ${n.emoji} ${n.name}
+          <span onclick="deleteNode('${n.name}')" style="cursor:pointer;color:red"> ❌</span>
+        </span>
+        ${renderTree(n.name)}
+      </li>`;
+  });
+  html += "</ul>";
+  return html;
 }
 
-/* DELETE */
-function deletePerson() {
-  if (!selectedId || selectedId === family.id)
-    return alert("Tidak bisa menghapus root");
-
-  function remove(node) {
-    node.children = node.children.filter(c => c.id !== selectedId);
-    node.children.forEach(remove);
-  }
-
-  remove(family);
-  selectedId = null;
-  renderTree();
+/* =========================
+   RENDER SEMUA
+========================= */
+function renderAll() {
+  renderList();
+  document.getElementById("tree").innerHTML = renderTree();
 }
 
-renderTree();
+/* =========================
+   INIT
+========================= */
+renderAll();
